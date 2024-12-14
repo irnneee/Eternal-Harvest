@@ -1,0 +1,58 @@
+# Unity auto-generated files
+Library/
+Temp/
+Obj/
+Logs/
+UserSettings/
+
+# Unity Build files
+Build/
+Builds/
+*.apk
+*.unitypackage
+
+# Cache and temporary files
+MemoryCaptures/
+.vscode/
+*.pidb
+*.booproj
+
+# Asset Bundles
+*.assetbundle
+*.unity3d
+
+# Crash and error logs
+sysinfo.txt
+*.crash
+
+# Script Assemblies
+*.dll
+*.exe
+*.ilk
+*.pdb
+*.mdb
+*.so
+*.dylib
+
+# Rider project files
+.idea/
+*.sln.iml
+
+# Unity specific settings
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb.meta
+*.pdb.meta
+
+# Platform-specific files
+*.idb
+*.class
+.DS_Store
+Thumbs.db
+
+# GitHub Desktop and misc
+desktop.ini
