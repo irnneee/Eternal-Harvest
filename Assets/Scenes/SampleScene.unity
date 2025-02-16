@@ -399,6 +399,7 @@ GameObject:
   - component: {fileID: 867481048}
   - component: {fileID: 867481047}
   - component: {fileID: 867481046}
+  - component: {fileID: 867481049}
   m_Layer: 0
   m_Name: Arbolico1_0
   m_TagString: Untagged
@@ -522,6 +523,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &867481049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 867481045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df8b8a8f70e46fc49810288962208f12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &915526542
 GameObject:
   m_ObjectHideFlags: 0
@@ -703,6 +716,7 @@ GameObject:
   - component: {fileID: 1678046291}
   - component: {fileID: 1678046290}
   - component: {fileID: 1678046289}
+  - component: {fileID: 1678046294}
   - component: {fileID: 1678046288}
   - component: {fileID: 1678046293}
   m_Layer: 0
@@ -752,6 +766,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 3
+  lastMotionVector: {x: 0, y: 0}
+  isMoving: 0
 --- !u!95 &1678046290
 Animator:
   serializedVersion: 7
@@ -890,6 +906,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.3, y: 0.15}
   m_EdgeRadius: 0
+--- !u!114 &1678046294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678046287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55e58e00c5280eb4d9b0090f19e6787c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offsetDistance: 1
+  sizeOfInteractableArea: 1.2
 --- !u!1 &2117694471
 GameObject:
   m_ObjectHideFlags: 0

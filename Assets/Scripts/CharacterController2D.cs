@@ -7,7 +7,9 @@ public class CharacterController2D : MonoBehaviour
     Rigidbody2D rb;
     [SerializeField] float speed = 3f;
     Vector2 motionVector;
+    public Vector2 lastMotionVector;
     Animator animator;
+    public bool isMoving;
 
     void Awake()
     {
@@ -20,8 +22,21 @@ public class CharacterController2D : MonoBehaviour
         motionVector = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         animator.SetFloat("horizontal", motionVector.x);
         animator.SetFloat("vertical", motionVector.y);
-    }
 
+        isMoving = motionVector.x != 0 || motionVector.y != 0;
+        animator.SetBool("isMoving", isMoving);
+
+        if (motionVector.x != 0 || motionVector.y != 0)
+        {
+            lastMotionVector = new Vector2(
+                motionVector.x, 
+                motionVector.y)
+                .normalized;
+
+            animator.SetFloat("lastHorizontal", lastMotionVector.x);
+            animator.SetFloat("lastVertical", lastMotionVector.y);
+        }
+    }
     void FixedUpdate()
     {
         Move();
