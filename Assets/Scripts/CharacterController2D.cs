@@ -9,36 +9,41 @@ public class CharacterController2D : MonoBehaviour
     Vector2 motionVector;
     public Vector2 lastMotionVector;
     Animator animator;
-    public bool isMoving;
+    public bool isMoving = false;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        animator.SetFloat("lastVertical", -1f);
     }
 
     private void Update()
     {
+        
+    }
+    void FixedUpdate()
+    {
         motionVector = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
         animator.SetFloat("horizontal", motionVector.x);
         animator.SetFloat("vertical", motionVector.y);
 
         isMoving = motionVector.x != 0 || motionVector.y != 0;
         animator.SetBool("isMoving", isMoving);
 
-        if (motionVector.x != 0 || motionVector.y != 0)
+        // Para mantener la dirección del último movimiento al detenerse
+        if (isMoving)
         {
             lastMotionVector = new Vector2(
-                motionVector.x, 
+                motionVector.x,
                 motionVector.y)
                 .normalized;
 
             animator.SetFloat("lastHorizontal", lastMotionVector.x);
             animator.SetFloat("lastVertical", lastMotionVector.y);
         }
-    }
-    void FixedUpdate()
-    {
+
         Move();
     }
 
