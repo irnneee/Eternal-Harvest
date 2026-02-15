@@ -8,7 +8,7 @@ public class Timer : MonoBehaviour
     const float secondsInADay = 36000f; //  cada día dura 10 horas del juego
     float time;
     int hours, minutes;
-    float timeScale = 30f; // 2 segundos en tiempo real son 1 minuto en el juego
+    public float daySpeed = 30f; // 2 segundos en tiempo real son 1 minuto en el juego
 
     [SerializeField] TMP_Text text;
 
@@ -16,7 +16,7 @@ public class Timer : MonoBehaviour
 
     void Update()
     {
-        time += Time.deltaTime * timeScale;
+        time += Time.deltaTime * daySpeed;
         toHoursMinutes(time);
         text.text = "Time: " + hours.ToString("00") + ":" + minutes.ToString("00");
         if (time >= secondsInADay)

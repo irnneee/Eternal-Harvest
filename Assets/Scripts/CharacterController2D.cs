@@ -14,7 +14,7 @@ public class CharacterController2D : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
         animator.SetFloat("lastVertical", -1f);
     }
 

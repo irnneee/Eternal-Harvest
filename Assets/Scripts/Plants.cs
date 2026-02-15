@@ -26,7 +26,7 @@ public class Plants : MonoBehaviour
 
     void Start()
     {
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
         CheckMaturity(); // Verificar estado inicial
     }
 
