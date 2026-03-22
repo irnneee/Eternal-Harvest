@@ -10,6 +10,8 @@ public class Plants : MonoBehaviour
     public float interactionRadius = 1.5f; // Distancia máxima para recoger
     
     bool isHarvestable = false;
+
+    public ItemData fruitToGive;
     Animator animator;
 
     // Nos suscribimos cuando el objeto se activa
@@ -80,19 +82,24 @@ public class Plants : MonoBehaviour
 
     void Harvest(GameObject player)
     {
-        // A. Añadir al inventario
-        // Buscamos el script Inventory en el jugador
         Inventory playerInventory = player.GetComponent<Inventory>();
         if (playerInventory != null)
         {
-            playerInventory.AddItem(1); // Sumamos 1 fruto
+            // Intentamos añadir el objeto. Si devuelve true, se añadió bien.
+            bool wasAdded = playerInventory.AddItem(fruitToGive, 1); 
+            
+            if (wasAdded)
+            {
+                // Solo reiniciamos la planta si el jugador tenía espacio para recogerlo
+                days = 0; 
+                isHarvestable = false;
+                animator.SetInteger("day", days); 
+                Debug.Log("Planta cosechada y reiniciada.");
+            }
+            else
+            {
+                Debug.Log("No puedes cosechar, no tienes espacio.");
+            }
         }
-
-        // B. Reiniciar la planta
-        days = 1; // Madura en dias alternos
-        isHarvestable = false;
-        animator.SetInteger("day", days); // Actualizamos el gráfico al inicio
-
-        Debug.Log("Planta cosechada y reiniciada.");  
     }
 }

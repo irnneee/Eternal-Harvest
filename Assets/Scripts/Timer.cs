@@ -36,6 +36,6 @@ public class Timer : MonoBehaviour
     /*
     Este timepo influye a las plantas, que crecen cada cierto número de días.
     El personaje puede seguir jugando independientemente del tiempo y de los días que pasen.
-    Para que el personaje tenga que irse a dormir 
+    Para que el personaje tenga que irse a dormir tendrá su contador de cansancio.
     */
 }

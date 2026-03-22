@@ -184,9 +184,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 1
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 190, y: 200}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -472,6 +472,7 @@ GameObject:
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
+  - component: {fileID: 519420034}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -566,7 +567,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 3.28125
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -610,6 +611,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1678046292}
+--- !u!114 &519420034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.PixelPerfectCamera
+  m_ComponentVersion: 1
+  m_AssetsPPU: 32
+  m_RefResolutionX: 320
+  m_RefResolutionY: 180
+  m_CropFrame: 0
+  m_GridSnapping: 1
+  m_FilterMode: 0
+  m_UpscaleRT: 0
+  m_PixelSnapping: 0
+  m_CropFrameX: 0
+  m_CropFrameY: 0
+  m_StretchFill: 0
 --- !u!1 &537656644
 GameObject:
   m_ObjectHideFlags: 0
@@ -832,7 +857,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2727dd8c34584ec45849b319ac6ab16b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1678046287}
+  player: {fileID: 879879669}
 --- !u!4 &823937507
 Transform:
   m_ObjectHideFlags: 0
@@ -1060,7 +1085,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc057c2e94abf734b89920d501d096c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fruits: 0
+  maxSlots: 5
+  slots: []
 --- !u!114 &879879672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1909,6 +1935,7 @@ MonoBehaviour:
   days: 0
   daysToMature: 3
   interactionRadius: 1.5
+  fruitToGive: {fileID: 11400000, guid: 50a12415d223b4948985412d73b0c1f7, type: 2}
 --- !u!1 &1215628954
 GameObject:
   m_ObjectHideFlags: 0
@@ -2569,12 +2596,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -2655,11 +2682,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1933573817}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -323.3, y: -235.8}
-  m_SizeDelta: {x: 200, y: 44.3896}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 20, y: 0}
+  m_SizeDelta: {x: 200, y: 44.389587}
+  m_Pivot: {x: 0, y: 0}
 --- !u!114 &1937197403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2886,7 +2913,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2137409562}
   m_Father: {fileID: 152225634}
@@ -3088,8 +3115,8 @@ RectTransform:
   m_GameObject: {fileID: 2137409561}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 348265118}
   - {fileID: 861313570}
