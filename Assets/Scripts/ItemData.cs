@@ -1,10 +1,14 @@
 using UnityEngine;
 
-// Esto añade un botón en el menú de Unity para crear objetos fácilmente
+public enum ItemType { Material, Consumable, Seed } // Genérico y ampliable
+
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class ItemData : ScriptableObject
 {
     public string itemName;
-    public Sprite icon; // Para cuando hagamos la interfaz visual
-    public int maxStack = 99; // Límite de objetos por casilla
+    public Sprite icon;
+    public int maxStack = 99;
+    
+    public ItemType type; 
+    public GameObject actionPrefab; // Para objetos que tengan una acción específica.
 }

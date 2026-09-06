@@ -47,4 +47,22 @@ public class Inventory : MonoBehaviour
         Debug.Log("¡El inventario está lleno!");
         return false; 
     }
+
+    public bool RemoveItem(ItemData itemToRemove)
+{
+    foreach (InventorySlot slot in slots)
+    {
+        // Buscamos si tenemos el objeto y si queda al menos 1
+        if (slot.item == itemToRemove && slot.amount > 0)
+        {
+            slot.amount--;
+            if (slot.amount == 0)
+            {
+                slots.Remove(slot); // Vaciamos la casilla
+            }
+            return true; 
+        }
+    }
+    return false; // No tienes ese objeto
+}
 }
