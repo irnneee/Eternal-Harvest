@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Esta clase representa una casilla individual
-[System.Serializable] // Permite que lo veamos en el Inspector de Unity
+[System.Serializable]
 public class InventorySlot
 {
     public ItemData item;
@@ -17,52 +16,51 @@ public class InventorySlot
 
 public class Inventory : MonoBehaviour
 {
-    public int maxSlots = 6; // Límite de casillas diferentes
-    
-    // Aquí guardamos nuestro inventario real
+    public int maxSlots = 10; 
     public List<InventorySlot> slots = new List<InventorySlot>();
+
+    // EVENTO: Para avisar a la UI cuando haya cambios
+    public delegate void OnItemChanged();
+    public OnItemChanged onItemChangedCallback;
 
     public bool AddItem(ItemData itemToAdd, int amountToAdd)
     {
-        // 1. Comprobar si ya tenemos este objeto en alguna casilla para apilarlo (stack)
         foreach (InventorySlot slot in slots)
         {
             if (slot.item == itemToAdd && slot.amount < slot.item.maxStack)
             {
                 slot.amount += amountToAdd;
-                Debug.Log($"Apilado: {slot.amount} {itemToAdd.itemName}s en esta casilla.");
-                return true; // Se añadió con éxito
+                onItemChangedCallback?.Invoke(); // Avisar a la UI
+                return true; 
             }
         }
 
-        // 2. Si no lo tenemos (o la casilla estaba llena), buscamos una casilla vacía
         if (slots.Count < maxSlots)
         {
             slots.Add(new InventorySlot(itemToAdd, amountToAdd));
-            Debug.Log($"Nueva casilla ocupada con: {itemToAdd.itemName}. Casillas usadas: {slots.Count}/{maxSlots}");
-            return true; // Se añadió con éxito
+            onItemChangedCallback?.Invoke(); // Avisar a la UI
+            return true; 
         }
 
-        // 3. Si llegamos aquí, el inventario está lleno
         Debug.Log("¡El inventario está lleno!");
         return false; 
     }
 
     public bool RemoveItem(ItemData itemToRemove)
-{
-    foreach (InventorySlot slot in slots)
     {
-        // Buscamos si tenemos el objeto y si queda al menos 1
-        if (slot.item == itemToRemove && slot.amount > 0)
+        foreach (InventorySlot slot in slots)
         {
-            slot.amount--;
-            if (slot.amount == 0)
+            if (slot.item == itemToRemove && slot.amount > 0)
             {
-                slots.Remove(slot); // Vaciamos la casilla
+                slot.amount--;
+                if (slot.amount == 0)
+                {
+                    slots.Remove(slot); 
+                }
+                onItemChangedCallback?.Invoke(); // Avisar a la UI
+                return true; 
             }
-            return true; 
         }
+        return false; 
     }
-    return false; // No tienes ese objeto
-}
 }

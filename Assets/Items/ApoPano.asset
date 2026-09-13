@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: ApoPano
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: apoPano
-  icon: {fileID: 0}
+  icon: {fileID: 8797934543099578012, guid: 40c065ef292f2e24aaa355a0d759baea, type: 3}
   maxStack: 99
+  type: 0
+  actionPrefab: {fileID: 0}

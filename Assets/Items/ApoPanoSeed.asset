@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ApoPanoSeed
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: apoPanoSeed
-  icon: {fileID: 0}
+  icon: {fileID: 6061843766441075814, guid: 42eff1b1a2624b2409c232bd916f3f18, type: 3}
   maxStack: 99
   type: 2
   actionPrefab: {fileID: 7765198043472271793, guid: 3d7dc33c07fd7704a9c269a3597ad04c, type: 3}

@@ -10,10 +10,11 @@ public class PlayerInteraction : MonoBehaviour
     [Header("Configuración")]
     public float interactionRadius = 1.5f;
     public ItemData equippedItem; 
-    public LayerMask plantLayer; // Capa para detectar si ya hay una planta
+    public LayerMask plantLayer; 
 
     void Update()
     {
+        // Solo el clic izquierdo para interactuar. Si equippedItem es null, simplemente no hará nada.
         if (Input.GetMouseButtonDown(0)) 
         {
             TryInteract();
@@ -38,16 +39,14 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    void TryPlantSeed(Vector2 actionPosition)
+void TryPlantSeed(Vector2 actionPosition)
     {
         Vector3Int cellPosition = cultivableTilemap.WorldToCell(actionPosition);
 
-        // 1. Validar si hay tierra cultivable en el Tilemap invisible
         if (cultivableTilemap.HasTile(cellPosition))
         {
             Vector3 spawnPosition = cultivableTilemap.GetCellCenterWorld(cellPosition);
 
-            // 2. Comprobar si ya hay una planta en ese punto exacto
             Collider2D hit = Physics2D.OverlapPoint(spawnPosition, plantLayer);
             if (hit != null)
             {
@@ -55,20 +54,10 @@ public class PlayerInteraction : MonoBehaviour
                 return;
             }
 
-            // 3. Gastar semilla e instanciar
             if (inventory.RemoveItem(equippedItem))
             {
                 Instantiate(equippedItem.actionPrefab, spawnPosition, Quaternion.identity);
-                Debug.Log("¡Semilla plantada!");
             }
-            else
-            {
-                Debug.Log("No te quedan semillas en el inventario.");
-            }
-        }
-        else
-        {
-            Debug.Log("Aquí no puedes plantar.");
         }
     }
 }
