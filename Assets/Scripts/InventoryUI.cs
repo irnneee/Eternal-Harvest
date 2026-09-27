@@ -36,6 +36,11 @@ public class InventoryUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha8)) SelectSlot(7);
         if (Input.GetKeyDown(KeyCode.Alpha9)) SelectSlot(8);
         if (Input.GetKeyDown(KeyCode.Alpha0)) SelectSlot(9);
+
+        if (selectedSlotIndex < slotsUI.Length)
+        {
+            cursor.position = slotsUI[selectedSlotIndex].transform.position;
+        }
     }
 
     void SelectSlot(int index)
@@ -59,7 +64,8 @@ public class InventoryUI : MonoBehaviour
             Image icon = slotsUI[i].transform.Find("Icono").GetComponent<Image>();
             TextMeshProUGUI amountText = slotsUI[i].transform.Find("TextoCantidad").GetComponent<TextMeshProUGUI>();
 
-            if (i < inventory.slots.Count)
+            // Comprobamos que haya casilla y que no esté vacía (null)
+            if (i < inventory.slots.Count && inventory.slots[i].item != null)
             {
                 // Si hay objeto, lo mostramos
                 icon.sprite = inventory.slots[i].item.icon;
@@ -81,7 +87,7 @@ public class InventoryUI : MonoBehaviour
     void UpdateEquippedItem()
     {
         // Actualizamos las manos del jugador según la casilla seleccionada
-        if (selectedSlotIndex < inventory.slots.Count)
+        if (selectedSlotIndex < inventory.slots.Count && inventory.slots[selectedSlotIndex].item != null)
         {
             playerInteraction.equippedItem = inventory.slots[selectedSlotIndex].item;
         }

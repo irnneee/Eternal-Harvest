@@ -54,9 +54,13 @@ void TryPlantSeed(Vector2 actionPosition)
                 return;
             }
 
-            if (inventory.RemoveItem(equippedItem))
+            // 3. Gastar semilla e instanciar
+            ItemData seedToPlant = equippedItem; // Guardamos la referencia a salvo
+            
+            if (inventory.RemoveItem(seedToPlant))
             {
-                Instantiate(equippedItem.actionPrefab, spawnPosition, Quaternion.identity);
+                // Usamos la referencia guardada en lugar de equippedItem
+                Instantiate(seedToPlant.actionPrefab, spawnPosition, Quaternion.identity);
             }
         }
     }

@@ -19,27 +19,41 @@ public class Inventory : MonoBehaviour
     public int maxSlots = 10; 
     public List<InventorySlot> slots = new List<InventorySlot>();
 
-    // EVENTO: Para avisar a la UI cuando haya cambios
     public delegate void OnItemChanged();
     public OnItemChanged onItemChangedCallback;
 
+    void Awake()
+    {
+        // Rellenar el inventario con huecos vacíos fijos al iniciar
+        while (slots.Count < maxSlots)
+        {
+            slots.Add(new InventorySlot(null, 0));
+        }
+    }
+
     public bool AddItem(ItemData itemToAdd, int amountToAdd)
     {
+        // 1. Intentar apilar en una casilla que ya tenga este objeto
         foreach (InventorySlot slot in slots)
         {
             if (slot.item == itemToAdd && slot.amount < slot.item.maxStack)
             {
                 slot.amount += amountToAdd;
-                onItemChangedCallback?.Invoke(); // Avisar a la UI
+                onItemChangedCallback?.Invoke();
                 return true; 
             }
         }
 
-        if (slots.Count < maxSlots)
+        // 2. Buscar la PRIMERA casilla vacía disponible y ocuparla
+        foreach (InventorySlot slot in slots)
         {
-            slots.Add(new InventorySlot(itemToAdd, amountToAdd));
-            onItemChangedCallback?.Invoke(); // Avisar a la UI
-            return true; 
+            if (slot.item == null)
+            {
+                slot.item = itemToAdd;
+                slot.amount = amountToAdd;
+                onItemChangedCallback?.Invoke();
+                return true;
+            }
         }
 
         Debug.Log("¡El inventario está lleno!");
@@ -55,9 +69,9 @@ public class Inventory : MonoBehaviour
                 slot.amount--;
                 if (slot.amount == 0)
                 {
-                    slots.Remove(slot); 
+                    slot.item = null; // Limpiamos la casilla, NO la borramos de la lista
                 }
-                onItemChangedCallback?.Invoke(); // Avisar a la UI
+                onItemChangedCallback?.Invoke(); 
                 return true; 
             }
         }
