@@ -26,7 +26,7 @@ public class Plants : MonoBehaviour
         Timer.OnDayPassed -= changeDay;
     }
 
-    void Start()
+    void Awake()
     {
         animator = GetComponentInChildren<Animator>();
         CheckMaturity(); // Verificar estado inicial
@@ -56,20 +56,26 @@ public class Plants : MonoBehaviour
         }
     }
 
-    // Esta función de Unity se ejecuta automáticamente al hacer clic en el Collider del objeto
-    private void OnMouseDown()
+    // Función que se llama desde PlayerInteraction
+    public void InteractWithPlant()
     {
-        // 1. Verificamos si la planta tiene frutos
-        if (!isHarvestable) return;
+        CheckMaturity();
 
-        // 2. Obtenemos al jugador desde tu GameManager
+        if (!isHarvestable) 
+        {
+            Debug.Log("Esta planta aún no está lista para ser cosechada.");
+            return;
+        }
+
         GameObject player = GameManager.instance.player;
-        if (player == null) return;
+        if (player == null) 
+        {
+            Debug.Log("No se encontró al jugador.");
+            return;
+        }
 
-        // 3. Calculamos la distancia entre la planta y el jugador
         float distance = Vector2.Distance(transform.position, player.transform.position);
 
-        // 4. Si está lo suficientemente cerca, cosechamos
         if (distance <= interactionRadius)
         {
             Harvest(player);

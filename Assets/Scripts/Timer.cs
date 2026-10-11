@@ -1,9 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections;
+using TMPro;
 
 public class Timer : MonoBehaviour
 {
+    public static Timer Instance { get; private set; }
+
+    [Header("Day & UI Settings")]
+    [Tooltip("Día actual del juego (empieza en 1)")]
+    public int currentDay = 1;
+
     [Header("Fatigue Settings")]
     [Tooltip("Duración máxima de la barra en cada fragmento")]
     public float maxFatigue = 100f;
@@ -30,6 +38,14 @@ public class Timer : MonoBehaviour
     // Eventos para el resto del juego (plantas, fin del ciclo, etc.)
     public static event Action<int> OnFragmentChanged;
     public static event Action OnDayPassed;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+    }
 
     void Start()
     {
@@ -78,17 +94,31 @@ public class Timer : MonoBehaviour
         currentFatigue = maxFatigue;
         currentFragment++;
 
-        // Si superamos la sexta aguja (índice 5), se completa el ciclo
+        // Si superamos la sexta aguja (índice 5), se completa el ciclo del día
         if (currentFragment >= clockHands.Length)
         {
-            currentFragment = 0;
-            OnDayPassed?.Invoke();
-            Debug.Log("All 6 clock fragments completed.");
+            PassToNextDay();
+            return;
         }
 
         UpdateHandVisuals();
         UpdateBarVisuals();
         OnFragmentChanged?.Invoke(currentFragment);
+    }
+
+    public void PassToNextDay()
+    {
+        currentDay++;
+        currentFatigue = maxFatigue;
+        currentFragment = 0;
+
+        UpdateHandVisuals();
+        UpdateBarVisuals();
+
+        OnFragmentChanged?.Invoke(currentFragment);
+        OnDayPassed?.Invoke();
+
+        Debug.Log($"[Timer] Ahora es el Día {currentDay}. Barra al 100% y aguja en el fragmento I.");
     }
 
     private void UpdateBarVisuals()

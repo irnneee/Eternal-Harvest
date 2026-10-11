@@ -14,9 +14,23 @@ public class PlayerInteraction : MonoBehaviour
 
     void Update()
     {
-        // Solo el clic izquierdo para interactuar. Si equippedItem es null, simplemente no hará nada.
         if (Input.GetMouseButtonDown(0)) 
         {
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            
+            // 1. Comprobar si hay una planta ya existente debajo del ratón
+            Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos, plantLayer);
+            if (hit != null)
+            {
+                Plants clickedPlant = hit.GetComponent<Plants>();
+                if (clickedPlant != null)
+                {
+                    clickedPlant.InteractWithPlant(); // Cosechamos la planta
+                    return; // Importante: Salimos de la función para no intentar plantar una semilla encima
+                }
+            }
+
+            // 2. Si no hay planta, continuamos con la lógica normal (intentar plantar)
             TryInteract();
         }
     }
