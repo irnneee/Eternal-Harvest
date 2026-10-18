@@ -8,6 +8,10 @@ public class Plants : MonoBehaviour
     
     [Header("Configuración de Interacción")]
     public float interactionRadius = 1.5f; // Distancia máxima para recoger
+
+    [Header("Estado de Riego")]
+    public bool requiresWaterToGrow = true; // Desmarca esto en el Inspector si quieres que crezcan sin regar
+    public bool isWatered = false;
     
     bool isHarvestable = false;
 
@@ -34,15 +38,35 @@ public class Plants : MonoBehaviour
 
     void changeDay()
     {
-        // Solo crece si no está ya lista para cosechar (opcional, depende de tu diseño)
         if (!isHarvestable) 
         {
+            // Si requiere agua y no fue regada hoy, no avanza su crecimiento
+            if (requiresWaterToGrow && !isWatered)
+            {
+                Debug.Log(this.name + " no creció hoy porque le faltó agua.");
+                return;
+            }
+
             days++;
+            isWatered = false; // Se seca al pasar de día para tener que volver a regarla
             CheckMaturity();
             Debug.Log(this.name + "- Days: " + days);
         }
     }
 
+    // Nueva función llamada desde PlayerInteraction al usar la regadera
+    public void WaterPlant()
+    {
+        if (!isWatered)
+        {
+            isWatered = true;
+            Debug.Log(this.name + " ha sido regada.");
+        }
+        else
+        {
+            Debug.Log(this.name + " ya estaba regada hoy.");
+        }
+    }
     void CheckMaturity()
     {
         // Actualizamos la animación
