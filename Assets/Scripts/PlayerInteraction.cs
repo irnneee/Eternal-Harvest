@@ -1,27 +1,45 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.EventSystems; // Necesario para detectar si hacemos clic en la UI
+using UnityEngine.EventSystems;
 
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Referencias")]
-    public Tilemap groundTilemap;     // Tilemap del suelo base (césped/tierra sin arar)
-    public Tilemap cultivableTilemap; // Tilemap donde se pintan los cuadros arados/cultivables
-    public TileBase tilledTile;       // El Tile de tierra arada que pondrá la azada
+    public Tilemap groundTilemap;     // Tilemap del suelo base 
+    public Tilemap cultivableTilemap; // Tilemap superpuesto para tierra arada
+    public Tilemap sueloArable;       // Tilemap invisible que define dónde se puede usar la azada
+    public TileBase tilledTile;       // TilledRuleTile
     public Inventory inventory; 
+
+    [Header("Colores de Riego")]
+    public Color dryColor = Color.white; // Color normal del tile labrado
+    public Color wateredColor = new Color(0.7f, 0.7f, 0.7f, 1f); // Tono más oscuro al regar
 
     [Header("Configuración de Interacción")]
     public float interactionRadius = 1.5f;
     public LayerMask plantLayer; 
 
     [Header("Estado de Mano y Herramienta")]
-    public ItemData equippedItem; // Objeto del inventario principal (semillas, frutos, etc.)
-    public ToolType currentTool = ToolType.Hand; // Herramienta activa
+    public ItemData equippedItem; 
+    public ToolType currentTool = ToolType.Hand; 
     [HideInInspector] public bool isSelectingTool = false;
+
+    // Registro de las casillas que han sido regadas hoy
+    private HashSet<Vector3Int> wateredCells = new HashSet<Vector3Int>();
+
+    void OnEnable()
+    {
+        Timer.OnDayPassed += ResetWateredTiles;
+    }
+
+    void OnDisable()
+    {
+        Timer.OnDayPassed -= ResetWateredTiles;
+    }
 
     void Update()
     {
-        // Si estamos en el menú de la Q o el ratón está sobre la UI, no interactuamos con el entorno
         if (isSelectingTool) return;
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
@@ -29,14 +47,12 @@ public class PlayerInteraction : MonoBehaviour
         {
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-            // Comprobación general de distancia al jugador
             if (Vector2.Distance(transform.position, mouseWorldPos) > interactionRadius)
             {
                 Debug.Log("Demasiado lejos para interactuar.");
                 return;
             }
 
-            // Ejecutar acción según la herramienta equipada
             switch (currentTool)
             {
                 case ToolType.Hand:
@@ -57,7 +73,6 @@ public class PlayerInteraction : MonoBehaviour
     // 1. MANOS VACÍAS: Cosechar plantas o plantar semillas del inventario principal
     void UseEmptyHands(Vector2 mouseWorldPos)
     {
-        // Comprobar si hay una planta debajo del ratón para cosecharla
         Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos, plantLayer);
         if (hit != null)
         {
@@ -69,60 +84,92 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
 
-        // Si no hay planta y tenemos una semilla seleccionada en el inventario normal, plantamos
         if (equippedItem != null && equippedItem.type == ItemType.Seed)
         {
             TryPlantSeed(mouseWorldPos);
         }
     }
 
-    // 2. AZADA: Arar la tierra para volverla cultivable
+    // 2. AZADA: Superponer el tile de tierra labrada
     void UseHoe(Vector2 mouseWorldPos)
     {
         Vector3Int cellPosition = cultivableTilemap.WorldToCell(mouseWorldPos);
 
-        // Si ya está arada la casilla, no hacemos nada
+        // 1. Si ya está arada la casilla en cultivableTilemap, no hacemos nada
         if (cultivableTilemap.HasTile(cellPosition))
         {
             Debug.Log("Esta tierra ya está arada.");
             return;
         }
 
-        // Opcional: Si tienes un groundTilemap para validar que sea suelo válido antes de arar
-        if (groundTilemap != null && !groundTilemap.HasTile(groundTilemap.WorldToCell(mouseWorldPos)))
+        // 2. Comprobamos en el tilemap invisible 'sueloArable' si esta zona permite usar la azada
+        if (sueloArable != null && !sueloArable.HasTile(sueloArable.WorldToCell(mouseWorldPos)))
         {
             Debug.Log("No puedes usar la azada aquí.");
             return;
         }
 
+        // 3. Pintamos el Rule Tile en sueloCultivable
         if (tilledTile != null)
         {
             cultivableTilemap.SetTile(cellPosition, tilledTile);
+            cultivableTilemap.SetTileFlags(cellPosition, TileFlags.None);
+            cultivableTilemap.SetColor(cellPosition, dryColor);
+
+            // Reaplicamos el color oscuro a las casillas regadas por si el Rule Tile actualizó un vecino regado
+            RefreshWateredColors();
+
             Debug.Log("Tierra arada con la azada.");
         }
-        else
-        {
-            Debug.LogWarning("Falta asignar el 'tilledTile' en el Inspector de PlayerInteraction.");
-        }
     }
 
-    // 3. REGADERA: Regar una planta existente
-    void UseWateringCan(Vector2 mouseWorldPos)
+    void RefreshWateredColors()
     {
-        Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos, plantLayer);
-        if (hit != null)
+        foreach (Vector3Int wateredPos in wateredCells)
         {
-            Plants clickedPlant = hit.GetComponent<Plants>();
-            if (clickedPlant != null)
+            if (cultivableTilemap.HasTile(wateredPos))
             {
-                clickedPlant.WaterPlant();
-                return;
+                cultivableTilemap.SetTileFlags(wateredPos, TileFlags.None);
+                cultivableTilemap.SetColor(wateredPos, wateredColor);
             }
         }
-
-        Debug.Log("Usaste la regadera, pero no hay ninguna planta en esta casilla.");
     }
 
+    // 3. REGADERA: Oscurecer el tile labrado y regar la planta (si ya hay una)
+    void UseWateringCan(Vector2 mouseWorldPos)
+    {
+        Vector3Int cellPosition = cultivableTilemap.WorldToCell(mouseWorldPos);
+
+        // Comprobamos si la casilla está labrada
+        if (!cultivableTilemap.HasTile(cellPosition))
+        {
+            Debug.Log("Primero debes labrar la tierra antes de regarla.");
+            return;
+        }
+
+        // Si no estaba regada, la oscurecemos y la guardamos en el registro
+        if (!wateredCells.Contains(cellPosition))
+        {
+            wateredCells.Add(cellPosition);
+            cultivableTilemap.SetTileFlags(cellPosition, TileFlags.None);
+            cultivableTilemap.SetColor(cellPosition, wateredColor);
+            Debug.Log("Tierra regada.");
+        }
+
+        // Si ya hay una planta en esa casilla, le avisamos de que ha sido regada
+        Vector3 cellCenter = cultivableTilemap.GetCellCenterWorld(cellPosition);
+        Collider2D hit = Physics2D.OverlapPoint(cellCenter, plantLayer);
+        if (hit != null)
+        {
+            Plants plant = hit.GetComponent<Plants>();
+            if (plant != null)
+            {
+                plant.WaterPlant();
+            }
+        }
+    }
+
+    // Plantar semilla comprobando si la tierra ya estaba regada previamente
     void TryPlantSeed(Vector2 actionPosition)
     {
         Vector3Int cellPosition = cultivableTilemap.WorldToCell(actionPosition);
@@ -142,12 +189,36 @@ public class PlayerInteraction : MonoBehaviour
             
             if (inventory.RemoveItem(seedToPlant))
             {
-                Instantiate(seedToPlant.actionPrefab, spawnPosition, Quaternion.identity);
+                GameObject newPlantObj = Instantiate(seedToPlant.actionPrefab, spawnPosition, Quaternion.identity);
+                
+                // Si el jugador regó la tierra ANTES de plantar la semilla, la planta nace ya regada
+                if (wateredCells.Contains(cellPosition))
+                {
+                    Plants newPlant = newPlantObj.GetComponent<Plants>();
+                    if (newPlant != null)
+                    {
+                        newPlant.WaterPlant();
+                    }
+                }
             }
         }
         else
         {
             Debug.Log("Primero debes arar la tierra con la azada.");
         }
+    }
+
+    // Se ejecuta automáticamente cuando cambia el día en Timer.cs
+    void ResetWateredTiles()
+    {
+        foreach (Vector3Int cellPos in wateredCells)
+        {
+            if (cultivableTilemap.HasTile(cellPos))
+            {
+                cultivableTilemap.SetTileFlags(cellPos, TileFlags.None);
+                cultivableTilemap.SetColor(cellPos, dryColor);
+            }
+        }
+        wateredCells.Clear();
     }
 }

@@ -11,8 +11,13 @@ public class ToolMenuUI : MonoBehaviour
 {
     [Header("Referencias")]
     public PlayerInteraction playerInteraction;
+    public RectTransform menuRect;   // El RectTransform del contenedor de este menú
     public RectTransform toolCursor; // El sprite que marca la herramienta seleccionada
-    public GameObject selectionModeIndicator; // Opcional: Borde o brillo para saber que estás eligiendo con la Q
+
+    [Header("Animación del Menú")]
+    public Vector3 shownPosition = new Vector3(80f, 0f, 0f);
+    public Vector3 hiddenPosition = new Vector3(-60f, 0f, 0f);
+    public float slideSpeed = 10f; // Velocidad del deslizamiento (mayor número = más rápido)
 
     [Header("Slots de Herramientas (0: Manos, 1: Azada, 2: Regadera)")]
     public GameObject[] toolSlotsUI;
@@ -22,9 +27,19 @@ public class ToolMenuUI : MonoBehaviour
 
     void Start()
     {
-        SelectTool(0); // Empezamos con las manos vacías por defecto
-        if (selectionModeIndicator != null)
-            selectionModeIndicator.SetActive(false);
+        // Si no arrastraste el RectTransform manualmente, intenta coger el de este mismo objeto
+        if (menuRect == null)
+        {
+            menuRect = GetComponent<RectTransform>();
+        }
+
+        // Empezamos con el menú oculto en (-60, 0, 0) y con las manos seleccionadas
+        if (menuRect != null)
+        {
+            menuRect.anchoredPosition3D = hiddenPosition;
+        }
+
+        SelectTool(0);
     }
 
     void Update()
@@ -52,25 +67,36 @@ public class ToolMenuUI : MonoBehaviour
                 SelectTool(nextIndex);
             }
 
-            // Confirmar selección al hacer clic izquierdo (si usas la rueda)
+            // Confirmar selección al hacer clic izquierdo
             if (Input.GetMouseButtonDown(0))
             {
-                // Cerramos el modo selección en el siguiente frame para no disparar interacciones en el mundo
+                // Cerramos en el siguiente frame para evitar que el clic interactúe con el mundo
                 Invoke(nameof(CloseSelectionMode), 0.05f);
             }
         }
 
-        // Mantener el sprite selector en la posición del slot actual
+        // 3. Mover el menú de forma fluida hacia la posición objetivo
+        if (menuRect != null)
+        {
+            Vector3 targetPos = isSelectingTool ? shownPosition : hiddenPosition;
+            menuRect.anchoredPosition3D = Vector3.Lerp(
+                menuRect.anchoredPosition3D, 
+                targetPos, 
+                Time.deltaTime * slideSpeed
+            );
+        }
+
+        // 4. Actualizar la posición del cursor DESPUÉS de mover el menú para que se deslice con él
         if (selectedToolIndex < toolSlotsUI.Length && toolCursor != null)
         {
             toolCursor.position = toolSlotsUI[selectedToolIndex].transform.position;
         }
     }
 
-    // Puedes llamar a esta función desde el evento OnClick() de un componente Button en cada Slot de herramienta
+    // Función para los eventos OnClick() de los botones de cada herramienta en la UI
     public void SelectToolFromUI(int index)
     {
-        if (!isSelectingTool) return; // Solo permite cambiar si se ha pulsado la Q antes
+        if (!isSelectingTool) return;
 
         SelectTool(index);
         CloseSelectionMode();
@@ -98,11 +124,6 @@ public class ToolMenuUI : MonoBehaviour
         if (playerInteraction != null)
         {
             playerInteraction.isSelectingTool = isSelectingTool;
-        }
-
-        if (selectionModeIndicator != null)
-        {
-            selectionModeIndicator.SetActive(isSelectingTool);
         }
     }
 
