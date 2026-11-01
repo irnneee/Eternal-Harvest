@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2fdce31302c2d134e840948a1c0cb1de
+guid: 0dcc33adef99e784ba3159fa8cb6aeda
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8723084126242439940
-    second: Apopano1_0
+      213: 5534682468968225143
+    second: Avlavis_1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Apopano1_0
+      name: Avlavis_1_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 36
-        height: 47
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5018737, y: 0.41006184}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: cfc787d343161f680800000000000000
-      internalID: -8723084126242439940
+      spriteID: 779de6ba1642fcc40800000000000000
+      internalID: 5534682468968225143
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 65ecd0580c2d65545bfb26c506fccad3
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Apopano1_0: -8723084126242439940
+      Avlavis_1_0: 5534682468968225143
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

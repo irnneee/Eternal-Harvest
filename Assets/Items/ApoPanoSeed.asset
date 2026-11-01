@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917036708c6dfb04e81d2130ff714602, type: 3}
   m_Name: ApoPanoSeed
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: apoPanoSeed
-  icon: {fileID: 6061843766441075814, guid: 42eff1b1a2624b2409c232bd916f3f18, type: 3}
+  itemName: Semillas de ApoPano
+  icon: {fileID: -7535034214095658190, guid: 94dc6b5f2c069a94b846b9cc1cce4db8, type: 3}
   maxStack: 99
   type: 2
-  actionPrefab: {fileID: 7765198043472271793, guid: 3d7dc33c07fd7704a9c269a3597ad04c, type: 3}
+  actionPrefab: {fileID: 5679439894865383776, guid: 71ece48e345e5b74aad59222c736747d, type: 3}

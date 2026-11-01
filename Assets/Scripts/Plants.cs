@@ -1,13 +1,25 @@
 using UnityEngine;
 
+[System.Serializable]
+public struct GrowthStage
+{
+    public Sprite sprite;
+    public int dayToReach; // El día exacto en el que aparece este sprite
+}
+
 public class Plants : MonoBehaviour
 {
     [Header("Configuración de Crecimiento")]
     public int days = 0;
     public int daysToMature = 3; // Días necesarios para dar fruto
+    public bool destroyOnHarvest = false; 
+    public int daysToRegrow = 2; // Días que tarda en volver a dar fruto tras la 1ª cosecha
+
+    bool isRegrowing = false; // Controla si está en fase de rebrote
     
     [Header("Configuración de Interacción")]
     public float interactionRadius = 1.5f; // Distancia máxima para recoger
+    public int recolectedAmount = 1; // Cantidad de fruto que se obtiene al cosechar
 
     [Header("Estado de Riego")]
     public bool requiresWaterToGrow = true; // Desmarca esto en el Inspector si quieres que crezcan sin regar
@@ -16,7 +28,10 @@ public class Plants : MonoBehaviour
     bool isHarvestable = false;
 
     public ItemData fruitToGive;
-    Animator animator;
+    
+    public GrowthStage[] growthStages;
+
+    SpriteRenderer spriteRenderer;
 
     // Nos suscribimos cuando el objeto se activa
     void OnEnable()
@@ -32,8 +47,8 @@ public class Plants : MonoBehaviour
 
     void Awake()
     {
-        animator = GetComponentInChildren<Animator>();
-        CheckMaturity(); // Verificar estado inicial
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        CheckMaturity(); 
     }
 
     void changeDay()
@@ -67,16 +82,40 @@ public class Plants : MonoBehaviour
             Debug.Log(this.name + " ya estaba regada hoy.");
         }
     }
+
     void CheckMaturity()
     {
-        // Actualizamos la animación
-        animator.SetInteger("day", days);
-
-        // Si los días actuales superan o igualan los necesarios, se puede cosechar
-        if (days >= daysToMature)
+        if (!isRegrowing)
         {
-            isHarvestable = true;
-            Debug.Log("¡Una planta ha madurado!");
+            // CRECIMIENTO INICIAL: Usa el struct normal por días
+            for (int i = 0; i < growthStages.Length; i++)
+            {
+                if (days >= growthStages[i].dayToReach)
+                {
+                    spriteRenderer.sprite = growthStages[i].sprite;
+                }
+            }
+
+            if (days >= daysToMature)
+            {
+                isHarvestable = true;
+            }
+        }
+        else
+        {
+            // FASE DE REBROTE: Ya es una planta adulta esperando dar fruto otra vez
+            if (days >= daysToRegrow)
+            {
+                isHarvestable = true;
+                // Ponemos el último sprite de la lista (con fruto)
+                spriteRenderer.sprite = growthStages[growthStages.Length - 1].sprite;
+            }
+            else
+            {
+                // Mientras espera (ej. durante esos 2, 3 o 5 días), 
+                // forzamos que se vea siempre el penúltimo sprite (arbusto sin fruto)
+                spriteRenderer.sprite = growthStages[growthStages.Length - 2].sprite;
+            }
         }
     }
 
@@ -116,15 +155,21 @@ public class Plants : MonoBehaviour
         if (playerInventory != null)
         {
             // Intentamos añadir el objeto. Si devuelve true, se añadió bien.
-            bool wasAdded = playerInventory.AddItem(fruitToGive, 1); 
+            bool wasAdded = playerInventory.AddItem(fruitToGive, recolectedAmount); 
             
             if (wasAdded)
             {
-                // Solo reiniciamos la planta si el jugador tenía espacio para recogerlo
-                days = 0; 
-                isHarvestable = false;
-                animator.SetInteger("day", days); 
-                Debug.Log("Planta cosechada y reiniciada.");
+                if (destroyOnHarvest)
+                {
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    days = 0; 
+                    isHarvestable = false;
+                    isRegrowing = true; // Entramos en bucle de rebrote
+                    CheckMaturity(); 
+                }
             }
             else
             {
