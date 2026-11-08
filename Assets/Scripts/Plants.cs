@@ -36,13 +36,13 @@ public class Plants : MonoBehaviour
     // Nos suscribimos cuando el objeto se activa
     void OnEnable()
     {
-        Timer.OnDayPassed += changeDay; 
+        DayTimer.OnDayPassed += changeDay; 
     }
 
     // Nos desuscribimos cuando el objeto se desactiva o destruye
     void OnDisable()
     {
-        Timer.OnDayPassed -= changeDay;
+        DayTimer.OnDayPassed -= changeDay;
     }
 
     void Awake()

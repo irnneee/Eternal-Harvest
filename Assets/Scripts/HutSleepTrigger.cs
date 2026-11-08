@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Coloca este script en el GameObject de la choza (o en el hijo donde tengas el Box Collider 2D con "Is Trigger").
-/// Al entrar el jugador en el trigger, se pasará al siguiente día, restaurando la barra de cansancio al máximo
+/// Al entrar el jugador en el trigger, se pasará al siguiente día, restaurando la barra de energía al máximo
 /// y reiniciando el reloj al primer fragmento.
 /// </summary>
 public class HutSleepTrigger : MonoBehaviour
@@ -57,11 +57,11 @@ public class HutSleepTrigger : MonoBehaviour
             audioSource.PlayOneShot(sleepSound);
         }
 
-        // Buscamos el Timer y avanzamos de día
-        Timer timer = Timer.Instance;
+        // Buscamos el DayTimer y avanzamos de día
+        DayTimer timer = DayTimer.Instance;
         if (timer == null)
         {
-            timer = Object.FindFirstObjectByType<Timer>();
+            timer = Object.FindFirstObjectByType<DayTimer>();
         }
 
         if (timer != null)
@@ -71,7 +71,7 @@ public class HutSleepTrigger : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[Choza] No se encontró ningún componente Timer en la escena.");
+            Debug.LogWarning("[Choza] No se encontró ningún componente DayTimer en la escena.");
         }
 
         // Si hay un punto de reaparición/despertar configurado, movemos al jugador allí

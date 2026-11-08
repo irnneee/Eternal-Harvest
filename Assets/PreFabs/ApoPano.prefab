@@ -102,7 +102,7 @@ MonoBehaviour:
   daysToRegrow: 2
   interactionRadius: 1.5
   recolectedAmount: 5
-  requiresWaterToGrow: 0
+  requiresWaterToGrow: 1
   isWatered: 0
   fruitToGive: {fileID: 11400000, guid: 50a12415d223b4948985412d73b0c1f7, type: 2}
   growthStages:

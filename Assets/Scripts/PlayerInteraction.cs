@@ -30,12 +30,12 @@ public class PlayerInteraction : MonoBehaviour
 
     void OnEnable()
     {
-        Timer.OnDayPassed += ResetWateredTiles;
+        DayTimer.OnDayPassed += ResetWateredTiles;
     }
 
     void OnDisable()
     {
-        Timer.OnDayPassed -= ResetWateredTiles;
+        DayTimer.OnDayPassed -= ResetWateredTiles;
     }
 
     void Update()
@@ -119,6 +119,8 @@ public class PlayerInteraction : MonoBehaviour
             // Reaplicamos el color oscuro a las casillas regadas por si el Rule Tile actualizó un vecino regado
             RefreshWateredColors();
 
+            DayTimer.Instance.ModifyEnergy(-DayTimer.Instance.energyPerTilling); // Reduce energía al arar
+
             Debug.Log("Tierra arada con la azada.");
         }
     }
@@ -153,6 +155,7 @@ public class PlayerInteraction : MonoBehaviour
             wateredCells.Add(cellPosition);
             cultivableTilemap.SetTileFlags(cellPosition, TileFlags.None);
             cultivableTilemap.SetColor(cellPosition, wateredColor);
+            DayTimer.Instance.ModifyEnergy(-DayTimer.Instance.energyPerWatering); // Reduce energía al regar
             Debug.Log("Tierra regada.");
         }
 
@@ -190,7 +193,9 @@ public class PlayerInteraction : MonoBehaviour
             if (inventory.RemoveItem(seedToPlant))
             {
                 GameObject newPlantObj = Instantiate(seedToPlant.actionPrefab, spawnPosition, Quaternion.identity);
-                
+
+                DayTimer.Instance.ModifyEnergy(-DayTimer.Instance.energyPerPlanting); // Reduce energía al plantar
+
                 // Si el jugador regó la tierra ANTES de plantar la semilla, la planta nace ya regada
                 if (wateredCells.Contains(cellPosition))
                 {
@@ -208,7 +213,7 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    // Se ejecuta automáticamente cuando cambia el día en Timer.cs
+    // Se ejecuta automáticamente cuando cambia el día en DayTimer.cs
     void ResetWateredTiles()
     {
         foreach (Vector3Int cellPos in wateredCells)

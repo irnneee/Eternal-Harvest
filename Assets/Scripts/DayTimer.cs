@@ -1,27 +1,42 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 using System;
 using System.Collections;
 using TMPro;
 
-public class Timer : MonoBehaviour
+public class DayTimer : MonoBehaviour
 {
-    public static Timer Instance { get; private set; }
+    public static DayTimer Instance { get; private set; }
+    public static DayTimer instance => Instance; // Compatibilidad por si se accede como instance o Instance
 
     [Header("Day & UI Settings")]
     [Tooltip("Día actual del juego (empieza en 1)")]
     public int currentDay = 1;
+    public int hectomero = 1; // Hectómero actual
 
-    [Header("Fatigue Settings")]
+    [Header("Energy Settings")]
     [Tooltip("Duración máxima de la barra en cada fragmento")]
-    public float maxFatigue = 100f;
+    [FormerlySerializedAs("maxFatigue")]
+    public float maxEnergy = 100f;
     [Tooltip("Velocidad a la que baja la barra por segundo")]
     public float drainSpeed = 10f;
-    private float currentFatigue;
+    private float currentEnergy;
+
+    [Header("Energy Modification")]
+    [Tooltip("Cantidad de energía que se reduce al regar una planta")]
+    public float energyPerWatering = 50f;
+    [Tooltip("Cantidad de energía que se reduce al plantar una semilla")]
+    public float energyPerPlanting = 10f;
+    [Tooltip("Cantidad de energía que se reduce al cosechar una planta")]
+    public float energyPerHarvesting = 20f;
+    [Tooltip("Cantidad de energía que se reduce al arar el suelo")]
+    public float energyPerTilling = 80f;
 
     [Header("HUD References (Drag from Hierarchy)")]
     [Tooltip("Arrastra aquí el objeto de la barra verde")]
-    [SerializeField] private GameObject fatigueBarObject;
+    [FormerlySerializedAs("fatigueBarObject")]
+    [SerializeField] private GameObject energyBarObject;
 
     [Tooltip("Arrastra aquí los 6 objetos de las agujas rojas en orden (de la I a la VI)")]
     [SerializeField] private GameObject[] clockHands = new GameObject[6];
@@ -29,6 +44,10 @@ public class Timer : MonoBehaviour
     [Header("Bar Reduction Mode")]
     [Tooltip("Si está activado, recorta la barra sin deformar el pixel art. Si se desactiva, encoge su escala.")]
     [SerializeField] private bool useFillInsteadOfScale = true;
+
+    [Header("Text Display")]
+    [Tooltip("Arrastra aquí el TMP_Text que mostrará el día actual")]
+    [SerializeField] private TMP_Text dayText;
 
     private int currentFragment = 0; // 0 = Hand I, 1 = Hand II ... 5 = Hand VI
     private Image barImage;
@@ -49,14 +68,14 @@ public class Timer : MonoBehaviour
 
     void Start()
     {
-        currentFatigue = maxFatigue;
+        currentEnergy = maxEnergy;
         currentFragment = 0;
 
-        if (fatigueBarObject != null)
+        if (energyBarObject != null)
         {
-            barImage = fatigueBarObject.GetComponent<Image>();
-            barRect = fatigueBarObject.GetComponent<RectTransform>();
-            initialBarScale = fatigueBarObject.transform.localScale;
+            barImage = energyBarObject.GetComponent<Image>();
+            barRect = energyBarObject.GetComponent<RectTransform>();
+            initialBarScale = energyBarObject.transform.localScale;
 
             // Si tiene componente Image y usamos recorte, fijamos el origen a la derecha
             if (barImage != null && useFillInsteadOfScale)
@@ -78,12 +97,12 @@ public class Timer : MonoBehaviour
 
     void Update()
     {
-        // Reducimos el cansancio con el tiempo
-        currentFatigue -= Time.deltaTime * drainSpeed;
+        // Reducimos la energía con el tiempo
+        currentEnergy -= Time.deltaTime * drainSpeed;
         UpdateBarVisuals();
 
         // Cuando la barra llega a 0, pasamos al siguiente fragmento del reloj
-        if (currentFatigue <= 0f)
+        if (currentEnergy <= 0f)
         {
             AdvanceFragment();
         }
@@ -91,12 +110,13 @@ public class Timer : MonoBehaviour
 
     private void AdvanceFragment()
     {
-        currentFatigue = maxFatigue;
+        currentEnergy = maxEnergy;
         currentFragment++;
 
         // Si superamos la sexta aguja (índice 5), se completa el ciclo del día
         if (currentFragment >= clockHands.Length)
         {
+            Debug.Log("Te duermes en el suelo y pasa un día...");
             PassToNextDay();
             return;
         }
@@ -109,7 +129,13 @@ public class Timer : MonoBehaviour
     public void PassToNextDay()
     {
         currentDay++;
-        currentFatigue = maxFatigue;
+        if (currentDay > 100) 
+        {
+            currentDay = 1;
+            hectomero++;
+        }
+
+        currentEnergy = maxEnergy;
         currentFragment = 0;
 
         UpdateHandVisuals();
@@ -118,14 +144,18 @@ public class Timer : MonoBehaviour
         OnFragmentChanged?.Invoke(currentFragment);
         OnDayPassed?.Invoke();
 
-        Debug.Log($"[Timer] Ahora es el Día {currentDay}. Barra al 100% y aguja en el fragmento I.");
+        if (dayText != null)
+        {
+            dayText.text = "Día " + currentDay + " - Hectómero " + hectomero;
+        }
+        Debug.Log($"[DayTimer] Ahora es el Día {currentDay}. Del hectomero {hectomero}.");
     }
 
     private void UpdateBarVisuals()
     {
-        if (fatigueBarObject == null) return;
+        if (energyBarObject == null) return;
 
-        float percentage = Mathf.Clamp01(currentFatigue / maxFatigue);
+        float percentage = Mathf.Clamp01(currentEnergy / maxEnergy);
 
         if (barImage != null && useFillInsteadOfScale)
         {
@@ -135,7 +165,7 @@ public class Timer : MonoBehaviour
         else
         {
             // Encoge la escala en X manteniendo fijo el pivote derecho
-            fatigueBarObject.transform.localScale = new Vector3(
+            energyBarObject.transform.localScale = new Vector3(
                 initialBarScale.x * percentage,
                 initialBarScale.y,
                 initialBarScale.z
@@ -170,21 +200,21 @@ public class Timer : MonoBehaviour
 
     // --- ITEM & GAMEPLAY METHODS ---
 
-    // Rellena al máximo la barra de cansancio sin retroceder de fragmento.
-    public void RestoreFullFatigue()
+    // Rellena al máximo la barra de energía sin retroceder de fragmento.
+    public void RestoreFullEnergy()
     {
-        currentFatigue = maxFatigue;
+        currentEnergy = maxEnergy;
         UpdateBarVisuals();
-        Debug.Log("Fatigue fully restored at fragment " + (currentFragment + 1));
+        Debug.Log("Energy fully restored at fragment " + (currentFragment + 1));
     }
 
-    // Suma (o resta si es negativo) una cantidad de cansancio sin volver a un fragmento anterior.
-    public void ModifyFatigue(float amount)
+    // Suma (o resta si es negativo) una cantidad de energía sin volver a un fragmento anterior.
+    public void ModifyEnergy(float amount)
     {
-        currentFatigue = Mathf.Clamp(currentFatigue + amount, 0f, maxFatigue);
+        currentEnergy = Mathf.Clamp(currentEnergy + amount, 0f, maxEnergy);
         UpdateBarVisuals();
 
-        if (currentFatigue <= 0f)
+        if (currentEnergy <= 0f)
         {
             AdvanceFragment();
         }
